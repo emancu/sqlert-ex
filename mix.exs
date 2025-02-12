@@ -47,7 +47,7 @@ defmodule SQLert.MixProject do
       maintainers: ["Emiliano Mancuso"],
       licenses: ["MIT"],
       links: %{"GitHub" => @source_url},
-      files: ~w(lib CHANGELOG.md LICENSE.md mix.exs README.md .formatter.exs)
+      files: ~w(lib LICENSE mix.exs README.md .formatter.exs)
     ]
   end
 
