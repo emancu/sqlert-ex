@@ -1,4 +1,5 @@
 defmodule SQLertTest.DisabledAlert do
+  @moduledoc false
   use SQLert.Alert,
     schedule: "* 1 * * *",
     enabled: false

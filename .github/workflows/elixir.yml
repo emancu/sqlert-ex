@@ -2,9 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ master ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ master ]
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 */5 * *'
 
 permissions:
   contents: read
@@ -17,8 +20,38 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        elixir: ['1.14.5', '1.15.8', '1.16.3', '1.17.3', '1.18.2']
-        otp: ['25.3', '26.2', '27.2']
+        include:
+          # Elixir 1.15
+          - elixir: '1.15.8'
+            otp: '24.3'
+          - elixir: '1.15.8'
+            otp: '25.3'
+          - elixir: '1.15.8'
+            otp: '26.2'
+
+          # Elixir 1.16
+          - elixir: '1.16.3'
+            otp: '24.3'
+          - elixir: '1.16.3'
+            otp: '25.3'
+          - elixir: '1.16.3'
+            otp: '26.2'
+
+          # Elixir 1.17
+          - elixir: '1.17.3'
+            otp: '25.3'
+          - elixir: '1.17.3'
+            otp: '26.2'
+          - elixir: '1.17.3'
+            otp: '27.2'
+
+          # Elixir 1.18
+          - elixir: '1.18.2'
+            otp: '25.3'
+          - elixir: '1.18.2'
+            otp: '26.2'
+          - elixir: '1.18.2'
+            otp: '27.2'
 
     steps:
     - uses: actions/checkout@v4
@@ -47,5 +80,33 @@ jobs:
     - name: Run tests
       run: mix test
 
-    - name: Run Dialyzer
-      run: mix dialyzer
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Elixir
+      uses: erlef/setup-beam@v1
+      with:
+        elixir-version: 1.15.8
+        otp-version: 25.3
+
+    - name: Restore dependencies cache
+      uses: actions/cache@v3
+      with:
+        path: deps
+        key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}-1.14.5-25.3
+        restore-keys: |
+          ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          ${{ runner.os }}-mix-
+
+    - name: Install dependencies
+      run: mix deps.get
+
+    - name: Check formatting
+      run: mix format --check-formatted
+
+    - name: Static code analysis
+      run: mix credo

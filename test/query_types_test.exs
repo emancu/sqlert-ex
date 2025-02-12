@@ -49,10 +49,7 @@ defmodule SQLertTest.QueryTypesTest do
         end
 
         def handle_result([count]), do: {:alert, "Count: #{count}", %{count: count}}
-        def handle_result(asd) do
-          require IEx; IEx.pry
 
-        end
         def notifiers, do: [SQLertTest.MockNotifier]
       end
 

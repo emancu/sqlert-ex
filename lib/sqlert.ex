@@ -42,8 +42,8 @@ defmodule SQLert do
   @spec discoverable_alerts() :: [module()]
   def discoverable_alerts do
     :code.all_available()
-    |> Enum.map(&to_module/1)
-    |> Enum.filter(&alert_module?/1)
+    |> Stream.map(&to_module/1)
+    |> Stream.filter(&alert_module?/1)
     |> Enum.sort()
   end
 
@@ -59,8 +59,8 @@ defmodule SQLert do
   @spec running_alerts() :: [{module(), pid()}]
   def running_alerts do
     DynamicSupervisor.which_children(SQLert.AlertSupervisor)
-    |> Enum.map(fn {_, _pid, _, [module]} -> module end)
-    |> Enum.filter(&alert_module?/1)
+    |> Stream.map(fn {_, _pid, _, [module]} -> module end)
+    |> Stream.filter(&alert_module?/1)
     |> Enum.sort()
   end
 end

@@ -135,10 +135,6 @@ defmodule MyApp.Notifiers.Slack do
 end
 ```
 
-## Contributing
-
-We love contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
 ## License
 
 SQLert is released under the MIT License. See the LICENSE file for details.

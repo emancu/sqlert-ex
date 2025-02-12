@@ -1,7 +1,6 @@
 defmodule SQLert.Application do
   @moduledoc false
   use Application
-  require Logger
 
   @impl true
   def start(_type, _args) do
@@ -14,7 +13,7 @@ defmodule SQLert.Application do
     {:ok, pid} = Supervisor.start_link(children, opts)
 
     SQLert.discoverable_alerts()
-    |> Enum.filter(& &1.enabled?)
+    |> Enum.filter(& &1.enabled?())
     |> Enum.each(&start_alert/1)
 
     {:ok, pid}
