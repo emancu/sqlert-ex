@@ -174,27 +174,33 @@ defmodule SQLert.Alert do
         %{state | last_run: DateTime.utc_now()}
       end
 
-      defp execute_query(%Ecto.Query{} = query), do: repo().all(query)
+      defp execute_query(query) do
+        case query do
+          %Ecto.Query{} ->
+            repo().all(query)
 
-      defp execute_query(query) when is_binary(query) do
-        %{rows: rows} = repo().query!(query)
+          query when is_binary(query) ->
+            %{rows: rows} = repo().query!(query)
 
-        rows
+            rows
+        end
       end
 
-      defp notify({:alert, message, metadata}) do
-        notifiers()
-        |> Enum.each(fn notifier ->
-          %SQLert.Alert{message: message, metadata: metadata}
-          |> notifier.deliver()
-        end)
-      end
+      defp notify(action) do
+        case action do
+          {:alert, message, metadata} ->
+            notifiers()
+            |> Enum.each(fn notifier ->
+              %SQLert.Alert{message: message, metadata: metadata}
+              |> notifier.deliver()
+            end)
 
-      defp notify({:skip, metadata}), do: :ok
+          {:skip, _metadata} ->
+            :ok
+        end
+      end
 
       defp schedule_next_run do
-        import Logger
-        Logger.info("Scheduling next run: #{__MODULE__}")
         now = DateTime.utc_now() |> DateTime.to_naive()
         cron = Crontab.CronExpression.Parser.parse!(@sqlert_schedule)
         next_run = Crontab.Scheduler.get_next_run_date!(cron, now)

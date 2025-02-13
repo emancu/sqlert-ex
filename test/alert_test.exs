@@ -106,32 +106,32 @@ defmodule SQLertTest.AlertTest do
     setup do
       {:ok, _} = SQLertTest.MockNotifier.start_link()
 
-      pid = Process.whereis(SQLertTest.EnabledAlert)
-
-      {:ok, alert_pid: pid}
+      :ok
     end
 
-    test "triggers alert when condition is met", %{alert_pid: pid} do
+    test "notifies when condition is met" do
       # More than 10 users (see EnabledAlert)
       SQLertTest.MockRepo.set_result([[15]])
       SQLertTest.MockNotifier.clear()
 
       # Force execute the alert check
-      GenServer.call(pid, :check_alert)
+      {:noreply, state} = SQLertTest.EnabledAlert.handle_info(:check_alert, %{last_run: nil})
 
       [alert] = SQLertTest.MockNotifier.get_alerts()
       assert alert.message == "Too many users"
       assert alert.metadata.count > 10
+      refute state.last_run == nil
     end
 
-    test "skip alert notifications when condition is not met", %{alert_pid: pid} do
+    test "skip alert notifications when condition is not met" do
       # Less than 10 users (see EnabledAlert)
       SQLertTest.MockRepo.set_result([[6]])
 
       # Force execute the alert check
-      GenServer.call(pid, :check_alert)
+      {:noreply, state} = SQLertTest.EnabledAlert.handle_info(:check_alert, %{last_run: nil})
 
       assert SQLertTest.MockNotifier.get_alerts() == []
+      refute state.last_run == nil
     end
   end
 

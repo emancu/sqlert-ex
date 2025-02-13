@@ -76,7 +76,7 @@ defmodule SQLertTest do
   # Helpers
   ##
 
-  defp supervise_a_non_alert_process() do
+  defp supervise_a_non_alert_process do
     defmodule SomeProcessNotAlert do
       use GenServer
 

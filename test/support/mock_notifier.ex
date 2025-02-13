@@ -1,4 +1,5 @@
 defmodule SQLertTest.MockNotifier do
+  @moduledoc false
   @behaviour SQLert.Notifier
 
   def start_link do
